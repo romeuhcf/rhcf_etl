@@ -4,156 +4,193 @@ module RhcfEtl
   class NectarParser
     include RhcfEtl::PositionalParser::ModelDefinition
     include RhcfEtl::PositionalParser::Parsing
-    generate :devedor
-    encoding 'iso-8859-1'
+    include RhcfEtl::PositionalParser::HashSetup
 
-    model :cobradora, /\A00/ do
-      has_many :devedor
-      has_one :trailler
-      field 'Registro', 2
-      field 'Nome ', 50
-      field 'Endereço ', 80
-      field 'Bairro ', 30
-      field 'Cidade ', 30
-      field 'Estado ', 2
-      field 'Cep', 8
-      field 'Telefone ', 10
-      field 'Email', 100
-      field 'Site ', 150
-      field 'Data da Geração do Arquivo ', 10
-      field 'Hora da Geração do Arquivo ', 8
-      field 'Versão do layout ', 20
-    end
+    options = {
+      generate: :devedor,
+      encoding: 'iso-8859-1',
+      'models' => {
+        cobradora: {
+          'match' => '\A00',
+          relations: {
+            devedor: :has_many,
+            trailler: :has_one
+          },
+          fields: {
+            'Registro' => 2,
+            'Nome' => 50,
+            'Endereço' => 80,
+            'Bairro' => 30,
+            'Cidade' => 30,
+            'Estado' => 2,
+            'Cep' => 8,
+            'Telefone' => 10,
+            'Email' => 100,
+            'Site' => 150,
+            'Data da Geração do Arquivo' => 10,
+            'Hora da Geração do Arquivo' => 8,
+            'Versão do layout' => 20
+          }
+        },
 
-    model :devedor, /\A01/ do
-      belongs_to :cobradora
-      has_many :opcoes, inverse_of: :opcao
-      has_one :titulo
-      has_many :bens, inverse_of: :bem
-      field 'Fixo', 2
-      field 'Chave ', 50
-      field 'Nome', 60
-      field 'Endereço', 160
-      field 'Bairro', 50
-      field 'Cidade', 50
-      field 'Estado', 2
-      field 'Cep', 8
-      field 'Contrato', 50
-      field 'Referência', 50
-      field 'Conta contrato', 11
-      field 'Data Limite', 10
-      field 'CPF/CGC', 14
-      field 'Valor corrigido', 12
-      field 'Data Vencimento', 10
-      field 'Barras Digitável', 58
-      field 'Barras Impresso', 44
-      field 'Valor da Taxa', 13
-      field 'Agência Banco', 6
-      field 'Cedente Banco', 20
-      field 'Nosso Número', 18
-      field 'Dígito Nosso Número', 3
-      field 'Mercadoria', 500
-      field 'Login ', 10
-      field 'Senha', 4
-      field 'Código Endereço', 10
-      field 'Codigo da Carteira', 10
-      field 'Descrição da Carteira', 50
-      field 'Telefone do Devedor(DDD+Telefone)', 14
-      field 'Email 1', 250
-      field 'Email 2', 250
-      field 'Email 3', 250
-      field 'Nome Credor', 50
-      field 'Descrição da Campanha', 50
-      field 'Descrição da Segmentação', 50
-      field 'Descrição da Loja', 100
-      field 'Descrição da Classe', 100
-      field 'Collector', 100
-      field 'Sequencial do Contrato', 2
-      field 'Densidade do Contrato', 5
-      field 'Data de Ultimo Pagamento', 10
-      field 'Valor do Ultimo Pagamento', 12
-      field 'Codigo de barras do Contrato', 55
-      field 'CORRE_CON', 7
-      field 'Data de Inclusão do Contrato', 10
-      field 'Codigo do Lote', 10
-      field 'Percentual de entrada', 12
-      field 'Quantidade de Titulos', 3
-      field 'Uso do Banco', 10
-      field 'Especie do Documento', 10
-      field 'Aceite', 10
-      field 'CIP', 10
-      field 'Carteira', 10
-      field 'Especie', 10
-      field 'Cedente', 600
-      field 'Email Cedente', 100
-      field 'Site Cedente', 150
-      field 'Telefone Cedente', 15
-      field 'Telefone de Atendimento', 15
-    end
+        devedor: {
+          match: '\A01',
 
-    model :opcao, /\A02/ do
-      belongs_to :devedor
-      field 'Registro', 2
-      field 'Chave', 50
-      field 'Entrada  ', 12
-      field 'Qde de Parcelas Total', 2
-      field 'Valor Parcela  ', 12
-      field 'Valor do Saldo ', 12
-      field 'Valor Correção ', 12
-      field 'Valor de multa ', 12
-      field 'Despesa de cobrança', 12
-      field 'Multa Contratual ', 12
-      field 'Desconto ', 12
-      field 'Total', 12
-      field 'Valor de Despesa Total ', 12
-    end
+          relations: {
+            cobradora: 'belongs_to',
+            'titulo' => :has_one,
+            'opcoes' =>  { type: :has_many, 'inverse_of' => 'opcao' },
+            bens: { 'type' => 'has_many', inverse_of: :bem }
+          },
+          fields: {
+            'Fixo' => 2,
+            'Chave ' => 50,
+            'Nome' => 60,
+            'Endereço' => 160,
+            'Bairro' => 50,
+            'Cidade' => 50,
+            'Estado' => 2,
+            'Cep' => 8,
+            'Contrato' => 50,
+            'Referência' => 50,
+            'Conta contrato' => 11,
+            'Data Limite' => 10,
+            'CPF/CGC' => 14,
+            'Valor corrigido' => 12,
+            'Data Vencimento' => 10,
+            'Barras Digitável' => 58,
+            'Barras Impresso' => 44,
+            'Valor da Taxa' => 13,
+            'Agência Banco' => 6,
+            'Cedente Banco' => 20,
+            'Nosso Número' => 18,
+            'Dígito Nosso Número' => 3,
+            'Mercadoria' => 500,
+            'Login ' => 10,
+            'Senha' => 4,
+            'Código Endereço' => 10,
+            'Codigo da Carteira' => 10,
+            'Descrição da Carteira' => 50,
+            'Telefone do Devedor(DDD+Telefone)' => 14,
+            'Email 1' => 250,
+            'Email 2' => 250,
+            'Email 3' => 250,
+            'Nome Credor' => 50,
+            'Descrição da Campanha' => 50,
+            'Descrição da Segmentação' => 50,
+            'Descrição da Loja' => 100,
+            'Descrição da Classe' => 100,
+            'Collector' => 100,
+            'Sequencial do Contrato' => 2,
+            'Densidade do Contrato' => 5,
+            'Data de Ultimo Pagamento' => 10,
+            'Valor do Ultimo Pagamento' => 12,
+            'Codigo de barras do Contrato' => 55,
+            'CORRE_CON' => 7,
+            'Data de Inclusão do Contrato' => 10,
+            'Codigo do Lote' => 10,
+            'Percentual de entrada' => 12,
+            'Quantidade de Titulos' => 3,
+            'Uso do Banco' => 10,
+            'Especie do Documento' => 10,
+            'Aceite' => 10,
+            'CIP' => 10,
+            'Carteira' => 10,
+            'Especie' => 10,
+            'Cedente' => 600,
+            'Email Cedente' => 100,
+            'Site Cedente' => 150,
+            'Telefone Cedente' => 15,
+            'Telefone de Atendimento' => 15
+          }
+        },
+        opcao: {
+          match: '\A02',
+          relations: {
+            devedor: :belongs_to
+          },
+          fields: {
+            'Registro' => 2,
+            'Chave' => 50,
+            'Entrada  ' => 12,
+            'Qde de Parcelas Total' => 2,
+            'Valor Parcela  ' => 12,
+            'Valor do Saldo ' => 12,
+            'Valor Correção ' => 12,
+            'Valor de multa ' => 12,
+            'Despesa de cobrança' => 12,
+            'Multa Contratual ' => 12,
+            'Desconto ' => 12,
+            'Total' => 12,
+            'Valor de Despesa Total ' => 12
+          }
+        },
 
-    model :titulo, /\A03/ do
-      belongs_to :devedor
-      field 'Registro', 2
-      field 'Chave', 50
-      field 'Numero do titulo ', 25
-      field 'Vencimento do Titulo ', 10
-      field 'Valor do Titulo', 12
-      field 'Valor do Titulo2', 12
-      field 'Informações do Titulo', 1500
-      field 'Data Base Credito', 10
-      field 'Data Origem Atraso ', 10
-      field 'Valor Origem Atraso', 12
-      field 'Valor Juros', 12
-      field 'Valor Multa', 12
-      field 'Valor Tarifas, ', 12
-      field 'Valor IOF', 12
-      field 'Valor Anuidade ', 12
-      field 'Valor Seguro,', 12
-      field 'Valor Principal', 12
-      field 'Valor Permanencia', 12
-    end
+        titulo: {
+          match: '\A03',
+          relations: {
+            devedor: :belongs_to
+          },
+          fields: {
+            'Registro' => 2,
+            'Chave' => 50,
+            'Numero do titulo ' => 25,
+            'Vencimento do Titulo ' => 10,
+            'Valor do Titulo' => 12,
+            'Valor do Titulo2' => 12,
+            'Informações do Titulo' => 1500,
+            'Data Base Credito' => 10,
+            'Data Origem Atraso ' => 10,
+            'Valor Origem Atraso' => 12,
+            'Valor Juros' => 12,
+            'Valor Multa' => 12,
+            'Valor Tarifas, ' => 12,
+            'Valor IOF' => 12,
+            'Valor Anuidade ' => 12,
+            'Valor Seguro,' => 12,
+            'Valor Principal' => 12,
+            'Valor Permanencia' => 12
+          }
+        },
 
-    model :bem, /\A04/ do
-      belongs_to :devedor
-      field 'Registro', 2
-      field 'Chave', 50
-      field 'Descrição', 1000
-      field 'Referencia ', 50
-      field 'Placa', 100
-      field 'Chassi ', 100
-      field 'Marca', 300
-      field 'Modelo ', 100
-      field 'Ano do Modelo', 4
-      field 'Ano de Fabricação', 4
-      field 'Cor', 50
-      field 'Valor', 12
-    end
+        bem: {
+          match: '\A04',
+          relations: {
+            devedor: :belongs_to
+          },
+          fields: {
+            'Registro' => 2,
+            'Chave' => 50,
+            'Descrição' => 1000,
+            'Referencia ' => 50,
+            'Placa' => 100,
+            'Chassi ' => 100,
+            'Marca' => 300,
+            'Modelo ' => 100,
+            'Ano do Modelo' => 4,
+            'Ano de Fabricação' => 4,
+            'Cor' => 50,
+            'Valor' => 12
+          }
+        },
 
-    model :trailler, /\A09/ do
-      belongs_to :cobradora
-      field 'Registro', 2
-      field 'Qtd Total de linhas', 12
-      field 'Qtd de registro 01 ', 12
-      field 'Qtd de registro 02 ', 12
-      field 'Qtd de registro 03 ', 12
-      field 'Qtd de registro 04 ', 12
-    end
+        trailler: {
+          match: '\A09',
+          relations: {
+            cobradora: :belongs_to
+          },
+          fields: {
+            'Registro' => 2,
+            'Qtd Total de linhas' => 12,
+            'Qtd de registro 01 ' => 12,
+            'Qtd de registro 02 ' => 12,
+            'Qtd de registro 03 ' => 12,
+            'Qtd de registro 04 ' => 12
+          }
+        }
+      }
+
+    }
+    hash_setup(options)
   end
 end

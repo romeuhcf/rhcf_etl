@@ -5,6 +5,38 @@ require 'case_insensitive_hash'
 
 module RhcfEtl
   module PositionalParser
+    module HashSetup
+      extend ActiveSupport::Concern
+
+      class_methods do
+        def hash_setup(options)
+          options = options.deep_symbolize_keys
+          encoding options[:encoding]
+          generate options[:generate]
+          options[:models].each do |mname, mdef|
+            match = Regexp.new(mdef[:match])
+            model mname, match do
+              mdef[:relations].each do |rname, rdef|
+                rtype = rdef
+                ropts = {}
+
+                if rdef.is_a? Hash
+                  rtype = rdef.delete(:type)
+                  ropts = rdef
+                end
+
+                send(rtype, rname, ropts)
+              end
+
+              mdef[:fields].each do |fname, fsize|
+                field(fname, fsize)
+              end
+            end
+          end
+        end
+      end
+    end
+
     module Parsing
       extend ActiveSupport::Concern
 
@@ -25,12 +57,12 @@ module RhcfEtl
 
         remaining_id = some_generator_after(-1)
         remaining = remaining_id && @stack[remaining_id]
-        @stack=[]
+        @stack = []
         remaining
       end
 
       def where_is_father?(instance)
-        (@stack.size-1).downto(0) do |index|
+        (@stack.size - 1).downto(0) do |index|
           return index if @stack[index].may_have?(instance)
         end
         return nil
@@ -60,8 +92,7 @@ module RhcfEtl
       end
 
       def stack_instance(instance)
-
-        if is_generator?(instance) and (gen_index = some_generator_after(-1))
+        if is_generator?(instance) && (gen_index = some_generator_after(-1))
           return release_existing_generator_and_replace_by(instance, gen_index)
         else
           some_generator = tree_shift_for_child(instance)
@@ -80,11 +111,11 @@ module RhcfEtl
       end
 
       def unstack_all_after(idx)
-        @stack.slice!(idx+1, @stack.size)
+        @stack.slice!(idx + 1, @stack.size)
       end
 
       def line_to_instance(line)
-        ModelDefinition::Instance.new(identify_line(line), line, _elf=nil)
+        ModelDefinition::Instance.new(identify_line(line), line, _elf = nil)
       end
 
       def is_generator?(instance)
@@ -92,10 +123,10 @@ module RhcfEtl
       end
 
       def identify_line(line)
-        matching = models.values.select{|m| m.match?(line)}
+        matching = models.values.select { |m| m.match?(line) }
         case matching.size
         when 0
-          fail ArgumentError.new(["Unknown line type",line])
+          fail ArgumentError.new(["Unknown line type", line])
         when 1
           matching.first
         when 2
@@ -148,7 +179,7 @@ module RhcfEtl
         def embrace_child(other)
           relation = @model.relation_name_for(other.type)
           return unless relation
-          children[relation]||=[]
+          children[relation] ||= []
           children[relation] << other
 
           other.parents[self.type] = self
@@ -171,13 +202,13 @@ module RhcfEtl
           @model.associations.each do |association_model_sym, config|
             association_type, options = *config
             my_association = association_model_sym
-            inverse_association = options[:inverse_of] || my_association
+            inverse_association = (options[:inverse_of] || my_association).to_sym
 
             case association_type
             when 'has_one'
               me[my_association.to_s] = children[inverse_association]&.first&.to_hash(breadcrumbs)
             when 'has_many'
-              me[my_association.to_s] = (children[my_association] ||= {}).map{|i| i.to_hash(breadcrumbs)}
+              me[my_association.to_s] = (children[my_association] ||= {}).map { |i| i.to_hash(breadcrumbs) }
             when 'belongs_to'
               me[my_association.to_s] = parents[my_association]&.to_hash(breadcrumbs)
             else
@@ -213,7 +244,7 @@ module RhcfEtl
         end
 
         def value_on(instance)
-          format( instance.line[@start, @length], instance)
+          format(instance.line[@start, @length], instance)
         end
 
         def format(value, instance)
@@ -222,9 +253,9 @@ module RhcfEtl
 
         def formatter
           if @formatter_id
-            Proc.new{|value, instance| value.to_s.strip }
+            Proc.new { |value, instance| value.to_s.strip }
           else
-            Proc.new{|value, instance| value.to_s.strip }
+            Proc.new { |value, instance| value.to_s.strip }
           end
         end
       end
@@ -249,20 +280,21 @@ module RhcfEtl
 
         %w{has_one has_many belongs_to}.each do |association_type|
           define_method association_type do |model_sym, options = {}|
+            options[:inverse_of] = options[:inverse_of].to_sym if options[:inverse_of]
             @associations[model_sym] = [association_type, options]
           end
         end
 
         def relation_name_for(other_model_sym)
           @associations.each do |k, conf|
-            return k if k == other_model_sym or (conf.last && conf.last[:inverse_of] == other_model_sym)
+            return k if (k == other_model_sym) || (conf.last && conf.last[:inverse_of] == other_model_sym)
           end
           nil
         end
 
         def field(name, length, formatter = :strip)
-          @existing_fields||=[]
-          raise "field already defined '#{name}' for #{@type}" if @existing_fields.include?( name )
+          @existing_fields ||= []
+          raise "field already defined '#{name}' for #{@type}" if @existing_fields.include?(name)
 
           @existing_fields << name
           @fields[name] = Field.new(name, @start_accumulator, length, formatter)
@@ -287,8 +319,9 @@ module RhcfEtl
         end
 
         def model(type, matcher, &block)
+          type = type.to_sym
           cattr_accessor :models
-          self.models||={}
+          self.models ||= {}
           self.models[type] = generate_model_type(type, matcher, &block)
         end
 

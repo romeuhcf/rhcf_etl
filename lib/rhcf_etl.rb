@@ -1,4 +1,4 @@
-require "rhcf_etl/version"
+require 'rhcf_etl/version'
 
 module RhcfEtl
   # Your code goes here...
