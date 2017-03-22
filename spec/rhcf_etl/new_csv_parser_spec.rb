@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'rhcf_etl/csv_parser'
+require 'rhcf_etl/new_csv_parser'
 
-describe RhcfEtl::CsvParser do
-  subject{ RhcfEtl::CsvParser.new(col_sep: ';')}
+describe RhcfEtl::NewCsvParser do
+  subject{ RhcfEtl::NewCsvParser.new(col_sep: ';')}
   let(:row) do
     row = nil
     subject.parse(file){|i| row  = i ;break}
@@ -16,13 +16,13 @@ describe RhcfEtl::CsvParser do
 
 
   context "with headers on first line " do
-    subject{ RhcfEtl::CsvParser.new(col_sep: ';', headers: true)}
+    subject{ RhcfEtl::NewCsvParser.new(col_sep: ';', headers: true)}
     let(:file) { fixture_file_by_content("x;y;z\na;b;c")}
     it { expect(row).to eq( {'x'=>'a','y'=>'b','z'=>'c'})}
   end
 
   context "with used defined headers" do
-    subject{ RhcfEtl::CsvParser.new(col_sep: ';', headers: ['x','y','z','o'])}
+    subject{ RhcfEtl::NewCsvParser.new(col_sep: ';', headers: ['x','y','z','o'])}
     let(:file) { fixture_file_by_content("a;b;c")}
     it { expect(row).to eq( {'x'=>'a','y'=>'b','z'=>'c', 'o' => nil} ) }
   end
