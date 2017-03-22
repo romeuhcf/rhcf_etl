@@ -8,4 +8,13 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  def fixture_file(basename)
+    File.expand_path File.join(fixtures_path, basename)
+  end
+
+  def fixtures_path
+    File.join(File.dirname(__FILE__), 'fixtures')
+  end
+
 end
