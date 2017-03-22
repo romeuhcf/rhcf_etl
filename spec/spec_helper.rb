@@ -1,9 +1,9 @@
-require "bundler/setup"
-require "rhcf_etl"
+require 'bundler/setup'
+require 'rhcf_etl'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+  config.example_status_persistence_file_path = '.rspec_status'
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
@@ -16,5 +16,4 @@ RSpec.configure do |config|
   def fixtures_path
     File.join(File.dirname(__FILE__), 'fixtures')
   end
-
 end
