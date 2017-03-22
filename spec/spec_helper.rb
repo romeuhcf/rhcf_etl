@@ -16,4 +16,8 @@ RSpec.configure do |config|
   def fixtures_path
     File.join(File.dirname(__FILE__), 'fixtures')
   end
+
+  def fixture_file_by_content(content)
+    Tempfile.new('fixture').tap {|f| f.write content;f.rewind }
+  end
 end
