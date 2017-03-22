@@ -6,14 +6,12 @@ require 'active_support/core_ext/object/blank'
 
 module  RhcfEtl
   class CsvParser
-
-    def initialize( options = {} )
-      default_options = {encoding: 'windows-1252'}
+    def initialize(options = {})
+      default_options = { encoding: 'windows-1252' }
       @options = default_options.merge(options)
     end
 
     def parse(file)
-
       CSV.foreach(file, @options) do |row|
         yield @options[:headers] ? row.to_hash : row
       end

@@ -6,8 +6,7 @@ require 'active_support/core_ext/object/blank'
 
 module  RhcfEtl
   class NewCsvParser
-
-    def initialize( options = {} )
+    def initialize(options = {})
       @options = options
       @options[:encoding] ||= 'windows-1252'
     end
@@ -71,7 +70,7 @@ module  RhcfEtl
 
     def csv_options
       col_sep = @options[:col_sep] || ';'
-      @csv_options ||= {col_sep: col_sep}
+      @csv_options ||= { col_sep: col_sep }
     end
   end
 end

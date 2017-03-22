@@ -18,6 +18,6 @@ RSpec.configure do |config|
   end
 
   def fixture_file_by_content(content)
-    Tempfile.new('fixture').tap {|f| f.write content;f.rewind }
+    Tempfile.new('fixture').tap { |f| f.write content;f.rewind }
   end
 end
