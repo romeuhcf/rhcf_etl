@@ -13,6 +13,7 @@ module RhcfEtl
           options = options.deep_symbolize_keys
           encoding options[:encoding]
           generate options[:generate]
+
           options[:models].each do |mname, mdef|
             match = Regexp.new(mdef[:match])
             model mname, match do
@@ -327,7 +328,7 @@ module RhcfEtl
 
         def generate(model_type)
           cattr_accessor :generator_type
-          self.generator_type = model_type
+          self.generator_type = model_type.to_sym
           # TODO validate is a model
         end
 
